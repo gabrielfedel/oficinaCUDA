@@ -70,3 +70,23 @@ CUDA
 
 são problemas em que o cálculo de um elemento depende do uso de vizinhos (um raio de vizinhos)
 * normalmente as bordas são somente elementos de entrada (uma massa para calcular os outros elementos)
+
+
+__global__ void stencil_1d(int *in, int *out) {
+__shared__ int temp[BLOCK_SIZE + 2 * RADIUS];
+
+// indice glocal (bloco)
+int gindex = threadIdx.x + blockIdx.x * blockDim.x;
+
+//indice local
+int lindex = threadIdx.x + RADIUS;
+
+// Read input elements into shared memory
+
+temp[lindex] = in[gindex];
+if (threadIdx.x < RADIUS) {
+temp[lindex - RADIUS] = in[gindex - RADIUS];
+temp[lindex + BLOCK_SIZE] =
+in[gindex + BLOCK_SIZE];
+}
+
